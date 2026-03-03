@@ -71,7 +71,9 @@ pip install "devhub[all]"          # 전체 플랫폼
 
 pip install "devhub[devto]"        # Dev.to만 (추가 의존성 없음, httpx 사용)
 pip install "devhub[bluesky]"      # + atproto
-pip install "devhub[twitter]"      # + tweepy
+pip install "devhub[twitter]"      # + twikit (읽기) + tweepy (쓰기)
+pip install "devhub[twitter-read]" # + twikit만 (무료 읽기)
+pip install "devhub[twitter-write]"# + tweepy만 (공식 쓰기)
 pip install "devhub[reddit]"       # + asyncpraw
 ```
 
@@ -89,7 +91,12 @@ DEVTO_API_KEY=your_key
 BLUESKY_HANDLE=yourname.bsky.social
 BLUESKY_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
 
-# Twitter/X — https://developer.x.com/en/portal/dashboard
+# Twitter/X 읽기 (twikit, 무료) — X 계정 로그인
+TWITTER_USERNAME=...
+TWITTER_EMAIL=...
+TWITTER_PASSWORD=...
+
+# Twitter/X 쓰기 (tweepy, 공식 API) — https://developer.x.com/en/portal/dashboard
 TWITTER_API_KEY=...
 TWITTER_API_SECRET=...
 TWITTER_ACCESS_TOKEN=...
@@ -240,7 +247,10 @@ await reddit.write_post(title="...", body="...", subreddit="r/Python")
 # Dev.to — 태그가 노출에 중요
 await devto.write_post(title="...", body="...", tags=["python", "webdev", "tutorial"])
 
-# Twitter — 280자 제한 적용
+# Twitter — 하이브리드: twikit으로 무료 읽기, tweepy로 공식 쓰기
+# 읽기: API 키 없이 가능 (X 계정 로그인 사용)
+trending = await twitter.get_trending(limit=10)
+# 쓰기: 공식 API 키 필요, 280자 제한 적용
 await twitter.write_post(body="이 MCP 서버 접근법 한번 봐보세요...")
 
 # Bluesky — 스레드 지원
@@ -284,7 +294,7 @@ devhub/
 ├── base.py          # PlatformAdapter ABC
 ├── devto.py         # Dev.to (httpx 직접 — 공식 SDK 없음)
 ├── bluesky.py       # Bluesky (atproto)
-├── twitter.py       # Twitter/X (tweepy)
+├── twitter.py       # Twitter/X (twikit 읽기 + tweepy 쓰기 하이브리드)
 └── reddit.py        # Reddit (asyncpraw)
 ```
 

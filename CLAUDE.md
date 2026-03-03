@@ -12,7 +12,7 @@ devhub/
 ├── base.py          # PlatformAdapter ABC (모든 어댑터의 베이스)
 ├── devto.py         # Dev.to (httpx 직접, 공식 SDK 없음)
 ├── bluesky.py       # Bluesky (atproto SDK)
-├── twitter.py       # Twitter/X (tweepy)
+├── twitter.py       # Twitter/X (twikit 읽기 + tweepy 쓰기 하이브리드)
 └── reddit.py        # Reddit (asyncpraw)
 ```
 
@@ -48,10 +48,18 @@ mypy devhub/
 ruff check devhub/
 ```
 
+### Twitter 하이브리드 구조
+- **읽기**: twikit (무료, 로그인 기반) 우선 → tweepy fallback
+- **쓰기**: tweepy (공식 API v2) 전용
+- twikit 로그인 실패 시 `self._twikit = None`으로 graceful fallback (에러 안 냄)
+- 쿠키: `~/.devhub/twitter_cookies.json` (connect 시 로드/로그인, close 시 저장)
+- `is_configured()`: twikit OR tweepy 어느 한쪽이라도 있으면 True
+- extras: `twitter` (둘 다), `twitter-read` (twikit만), `twitter-write` (tweepy만)
+
 ## 의존성
 - 코어: httpx, python-dotenv
 - Bluesky: atproto
-- Twitter: tweepy
+- Twitter: twikit (읽기) + tweepy (쓰기)
 - Reddit: asyncpraw
 - Dev.to: 코어만으로 충분 (httpx)
 - 개발: pytest, pytest-asyncio, mypy, ruff

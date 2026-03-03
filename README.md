@@ -71,7 +71,9 @@ pip install "devhub[all]"          # All platforms
 
 pip install "devhub[devto]"        # Dev.to only (no extra deps, uses httpx)
 pip install "devhub[bluesky]"      # + atproto
-pip install "devhub[twitter]"      # + tweepy
+pip install "devhub[twitter]"      # + twikit (read) + tweepy (write)
+pip install "devhub[twitter-read]" # + twikit only (free read)
+pip install "devhub[twitter-write]"# + tweepy only (official write)
 pip install "devhub[reddit]"       # + asyncpraw
 ```
 
@@ -89,7 +91,12 @@ DEVTO_API_KEY=your_key
 BLUESKY_HANDLE=yourname.bsky.social
 BLUESKY_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
 
-# Twitter/X — https://developer.x.com/en/portal/dashboard
+# Twitter/X Read (twikit, free) — just your X account
+TWITTER_USERNAME=...
+TWITTER_EMAIL=...
+TWITTER_PASSWORD=...
+
+# Twitter/X Write (tweepy, official API) — https://developer.x.com/en/portal/dashboard
 TWITTER_API_KEY=...
 TWITTER_API_SECRET=...
 TWITTER_ACCESS_TOKEN=...
@@ -253,7 +260,10 @@ await reddit.write_post(title="...", body="...", subreddit="r/Python")
 # Dev.to — tags are important for discoverability
 await devto.write_post(title="...", body="...", tags=["python", "webdev", "tutorial"])
 
-# Twitter — respects 280-char limit, auto-truncates body
+# Twitter — hybrid: twikit reads for free, tweepy writes via official API
+# Read: no API key needed (uses your X account login)
+trending = await twitter.get_trending(limit=10)
+# Write: requires official API keys, respects 280-char limit
 await twitter.write_post(body="Check out this MCP server approach...")
 
 # Bluesky — supports thread creation
@@ -300,7 +310,7 @@ devhub/
 ├── base.py          # PlatformAdapter ABC
 ├── devto.py         # Dev.to (httpx direct — no official SDK exists)
 ├── bluesky.py       # Bluesky (atproto)
-├── twitter.py       # Twitter/X (tweepy)
+├── twitter.py       # Twitter/X (twikit read + tweepy write hybrid)
 └── reddit.py        # Reddit (asyncpraw)
 ```
 

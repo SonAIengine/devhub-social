@@ -35,7 +35,9 @@ dependencies = [
 [project.optional-dependencies]
 devto = []
 bluesky = ["atproto>=0.0.55"]
-twitter = ["tweepy>=4.14.0"]
+twitter = ["tweepy>=4.14.0", "twikit>=2.0.0"]
+twitter-read = ["twikit>=2.0.0"]
+twitter-write = ["tweepy>=4.14.0"]
 reddit = ["asyncpraw>=7.7.0"]
 all = [
     "devhub[devto]",
@@ -69,7 +71,7 @@ warn_return_any = true
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
-module = ["atproto.*", "tweepy.*", "asyncpraw.*"]
+module = ["atproto.*", "tweepy.*", "twikit.*", "asyncpraw.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
