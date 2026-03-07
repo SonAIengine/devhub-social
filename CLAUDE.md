@@ -51,9 +51,11 @@ ruff check devhub/
 ### Twitter 하이브리드 구조
 - **읽기**: twikit (무료, 로그인 기반) 우선 → tweepy fallback
 - **쓰기**: tweepy (공식 API v2) 전용
+- **검색**: tweepy + Bearer Token (OAuth2) — `TWITTER_BEARER_TOKEN` 환경변수
 - twikit 로그인 실패 시 `self._twikit = None`으로 graceful fallback (에러 안 냄)
 - 쿠키: `~/.devhub/twitter_cookies.json` (connect 시 로드/로그인, close 시 저장)
-- `is_configured()`: twikit OR tweepy 어느 한쪽이라도 있으면 True
+- `is_configured()`: twikit OR tweepy(OAuth1) OR bearer_token 어느 한쪽이라도 있으면 True
+- `_has_tweepy_creds`: OAuth1 4개 키 OR bearer_token만으로도 True
 - extras: `twitter` (둘 다), `twitter-read` (twikit만), `twitter-write` (tweepy만)
 
 ## 의존성

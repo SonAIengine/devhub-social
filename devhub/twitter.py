@@ -45,11 +45,12 @@ class Twitter(PlatformAdapter):
         email: str | None = None,
         password: str | None = None,
         cookie_path: str | None = None,
-        # tweepy (write)
+        # tweepy (write + search)
         api_key: str | None = None,
         api_secret: str | None = None,
         access_token: str | None = None,
         access_secret: str | None = None,
+        bearer_token: str | None = None,
     ) -> None:
         # twikit credentials
         self._tw_username = username or os.getenv("TWITTER_USERNAME", "")
@@ -64,6 +65,7 @@ class Twitter(PlatformAdapter):
         self._api_secret = api_secret or os.getenv("TWITTER_API_SECRET", "")
         self._access_token = access_token or os.getenv("TWITTER_ACCESS_TOKEN", "")
         self._access_secret = access_secret or os.getenv("TWITTER_ACCESS_SECRET", "")
+        self._bearer_token = bearer_token or os.getenv("TWITTER_BEARER_TOKEN", "")
 
         # runtime clients (set in connect())
         self._twikit: Any | None = None
@@ -95,6 +97,7 @@ class Twitter(PlatformAdapter):
         # tweepy init
         if self._has_tweepy_creds and TweepyAsyncClient is not None:
             self._tweepy = TweepyAsyncClient(
+                bearer_token=self._bearer_token or None,
                 consumer_key=self._api_key,
                 consumer_secret=self._api_secret,
                 access_token=self._access_token,
@@ -121,9 +124,10 @@ class Twitter(PlatformAdapter):
 
     @property
     def _has_tweepy_creds(self) -> bool:
-        return bool(
+        oauth1_ok = bool(
             self._api_key and self._api_secret and self._access_token and self._access_secret
         )
+        return oauth1_ok or bool(self._bearer_token)
 
     # -- configuration --
 
@@ -136,7 +140,8 @@ class Twitter(PlatformAdapter):
             and os.getenv("TWITTER_ACCESS_TOKEN")
             and os.getenv("TWITTER_ACCESS_SECRET")
         )
-        return twikit_ok or tweepy_ok
+        bearer_ok = bool(os.getenv("TWITTER_BEARER_TOKEN"))
+        return twikit_ok or tweepy_ok or bearer_ok
 
     # -- read (twikit first, tweepy fallback) --
 
