@@ -57,14 +57,26 @@ class Bluesky(PlatformAdapter):
     # -- read --
 
     async def get_trending(self, *, limit: int = 20) -> list[Post]:
-        resp = await self.client.app.bsky.feed.search_posts(
-            params=models.AppBskyFeedSearchPosts.Params(
-                q="*",
-                limit=min(limit, 100),
-                sort="top",
+        # Bluesky에는 trending 전용 API가 없음.
+        # q="*" 와일드카드는 타임아웃 발생 → 인기 피드(discover) 사용
+        try:
+            resp = await self.client.app.bsky.feed.get_feed(
+                params=models.AppBskyFeedGetFeed.Params(
+                    feed="at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot",
+                    limit=min(limit, 100),
+                )
             )
-        )
-        return [self._post_view_to_post(p) for p in resp.posts]
+            return [self._post_view_to_post(item.post) for item in resp.feed]
+        except Exception:
+            # whats-hot 피드 실패 시 일반 검색 fallback
+            resp = await self.client.app.bsky.feed.search_posts(
+                params=models.AppBskyFeedSearchPosts.Params(
+                    q="dev OR programming OR code",
+                    limit=min(limit, 100),
+                    sort="top",
+                )
+            )
+            return [self._post_view_to_post(p) for p in resp.posts]
 
     async def search(self, query: str, *, limit: int = 20) -> list[Post]:
         resp = await self.client.app.bsky.feed.search_posts(
