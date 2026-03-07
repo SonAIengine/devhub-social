@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "devhub"
+name = "devhub-social"
 version = "0.1.0"
 description = "Unified async Python client for developer communities — Dev.to, Bluesky, Twitter/X, Reddit"
 readme = "README.md"
@@ -40,10 +40,10 @@ twitter-read = ["twikit>=2.0.0"]
 twitter-write = ["tweepy>=4.14.0"]
 reddit = ["asyncpraw>=7.7.0"]
 all = [
-    "devhub[devto]",
-    "devhub[bluesky]",
-    "devhub[twitter]",
-    "devhub[reddit]",
+    "devhub-social[devto]",
+    "devhub-social[bluesky]",
+    "devhub-social[twitter]",
+    "devhub-social[reddit]",
 ]
 dev = [
     "pytest>=8.0.0",
@@ -56,6 +56,9 @@ dev = [
 Homepage = "https://github.com/SonAIengine/devhub"
 Repository = "https://github.com/SonAIengine/devhub"
 Issues = "https://github.com/SonAIengine/devhub/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["devhub"]
 
 [tool.ruff]
 target-version = "py310"
