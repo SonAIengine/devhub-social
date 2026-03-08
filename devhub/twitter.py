@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_COOKIE_PATH = Path.home() / ".devhub" / "twitter_cookies.json"
 
-_TWEET_FIELDS = ["id", "text", "author_id", "created_at", "public_metrics"]
+_TWEET_FIELDS = ["id", "text", "author_id", "created_at", "public_metrics", "reply_settings"]
 _USER_FIELDS = ["id", "name", "username", "description", "public_metrics", "profile_image_url"]
 
 
@@ -441,7 +441,7 @@ class Twitter(PlatformAdapter):
             likes=metrics.get("like_count", 0),
             comments_count=metrics.get("reply_count", 0),
             published_at=tweet.created_at if isinstance(tweet.created_at, datetime) else None,
-            raw={"id": tweet.id, "text": tweet.text},
+            raw={"id": tweet.id, "text": tweet.text, "reply_settings": getattr(tweet, "reply_settings", "everyone")},
         )
 
 
