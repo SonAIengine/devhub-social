@@ -265,8 +265,11 @@ class Twitter(PlatformAdapter):
                 in_reply_to_tweet_id=post_id,
             )
             tweet = resp.data
-            tweet_id = str(tweet["id"]) if tweet else ""
+            tweet_id = ""
+            if tweet:
+                tweet_id = str(tweet.get("id", "") if isinstance(tweet, dict) else getattr(tweet, "id", ""))
             url = f"https://x.com/i/status/{tweet_id}" if tweet_id else ""
+            logger.info("Twitter write_comment: tweet_id=%s url=%s", tweet_id, url)
             return PostResult(
                 success=True,
                 platform=self.platform,
