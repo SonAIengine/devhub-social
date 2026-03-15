@@ -162,39 +162,59 @@ class Twitter(PlatformAdapter):
             "allowed_actions": ["comment", "post"],
         }
 
-    # -- read (twikit first, tweepy fallback) --
+    # -- read (twikit first, tweepy fallback on error) --
 
     async def get_trending(self, *, limit: int = 20) -> list[Post]:
         if self._twikit is not None:
-            return await self._twikit_get_trending(limit=limit)
+            try:
+                return await self._twikit_get_trending(limit=limit)
+            except Exception:
+                logger.warning("twikit get_trending failed, falling back to tweepy", exc_info=True)
+                self._twikit = None
         if self._tweepy is not None:
             return await self._tweepy_get_trending(limit=limit)
         raise RuntimeError("Twitter adapter not connected — no read backend available.")
 
     async def search(self, query: str, *, limit: int = 20) -> list[Post]:
         if self._twikit is not None:
-            return await self._twikit_search(query, limit=limit)
+            try:
+                return await self._twikit_search(query, limit=limit)
+            except Exception:
+                logger.warning("twikit search failed, falling back to tweepy", exc_info=True)
+                self._twikit = None
         if self._tweepy is not None:
             return await self._tweepy_search(query, limit=limit)
         raise RuntimeError("Twitter adapter not connected — no read backend available.")
 
     async def get_post(self, post_id: str) -> Post:
         if self._twikit is not None:
-            return await self._twikit_get_post(post_id)
+            try:
+                return await self._twikit_get_post(post_id)
+            except Exception:
+                logger.warning("twikit get_post failed, falling back to tweepy", exc_info=True)
+                self._twikit = None
         if self._tweepy is not None:
             return await self._tweepy_get_post(post_id)
         raise RuntimeError("Twitter adapter not connected — no read backend available.")
 
     async def get_comments(self, post_id: str, *, limit: int = 50) -> list[Comment]:
         if self._twikit is not None:
-            return await self._twikit_get_comments(post_id, limit=limit)
+            try:
+                return await self._twikit_get_comments(post_id, limit=limit)
+            except Exception:
+                logger.warning("twikit get_comments failed, falling back to tweepy", exc_info=True)
+                self._twikit = None
         if self._tweepy is not None:
             return await self._tweepy_get_comments(post_id, limit=limit)
         raise RuntimeError("Twitter adapter not connected — no read backend available.")
 
     async def get_user(self, username: str) -> UserProfile:
         if self._twikit is not None:
-            return await self._twikit_get_user(username)
+            try:
+                return await self._twikit_get_user(username)
+            except Exception:
+                logger.warning("twikit get_user failed, falling back to tweepy", exc_info=True)
+                self._twikit = None
         if self._tweepy is not None:
             return await self._tweepy_get_user(username)
         raise RuntimeError("Twitter adapter not connected — no read backend available.")
